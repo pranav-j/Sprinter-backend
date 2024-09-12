@@ -16,7 +16,14 @@ const {
     startSprint 
 } = require("../controllers/adminControler");
 
-const { createItem, updateItem, getItem, moveItem, changeItemStatus } = require("../controllers/commonControllers");
+const { 
+    createItem, 
+    updateItem, 
+    addComment, 
+    getItem, 
+    moveItem, 
+    changeItemStatus
+} = require("../controllers/commonControllers");
 
 const { inviteSignup } = require("../controllers/normalUserController");
 
@@ -48,7 +55,9 @@ router.post("/api/startSprint", adminAuth, startSprint);
 
 router.post("/api/item", commonAuth, uploadItemFiles.array('attachments', 5), createItem);
 
-router.put("/api/item", commonAuth, updateItem);
+router.put("/api/item/:id", commonAuth, updateItem);
+
+router.post("/api/comment/:id", commonAuth, addComment)
 
 router.get("/api/project", commonAuth, getProjects);
 

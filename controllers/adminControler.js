@@ -132,7 +132,6 @@ const verifyOTP = async(req, res) => {
 
 const login = async(req, res) => {
     try {
-        console.log("Login BODY",req.body);
         const { email, password } = req.body;
         const user = await User.findOne({ email });
 

@@ -170,12 +170,63 @@ const createItem = async(req, res) => {
 
 const updateItem = async(req, res) => {
     try {
-        console.log("Item to UPDATE........", req.body);
+        const { id } = req.params;
+        const { title, description, type, start, end, assignee } = req.body;
+
+        const updatedItem = await Item.findByIdAndUpdate(
+            id,
+            {
+                title,
+                description,
+                type,
+                start,
+                end,
+                assignee: assignee === '' ? null : (assignee || null),
+                // Optionally handle attachments update logic
+            },
+            { new: true }
+        );
+
+        if (updatedItem) {
+            return res.status(200).json(updatedItem);
+        } else {
+            return res.status(404).json({ message: "Item not found" });
+        }
     } catch (error) {
         console.log("Failed to update item...............", error.message);
         return res.status(500).json({ message: "Failed to update item" });
     }
-}
+};
+
+const addComment = async(req, res) => {
+    try {
+        console.log("Comment body..........", req.body);
+
+        const { id } = req.params;
+        const { comment } = req.body;
+        const userId = req.user._id; // Assuming user is authenticated
+
+        const item = await Item.findById(id);
+
+        if (!item) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+
+        // Add the new comment
+        item.comments.push({
+            commentedBy: userId,
+            content: comment,
+            commentedAt: new Date(),
+        });
+
+        await item.save();
+        return res.status(200).json(item);
+
+    } catch (error) {
+        console.log("Failed to add comment...............", error.message);
+        return res.status(500).json({ message: "Failed to add comment" });
+    }
+};
 
 const getItem = async(req, res) => {
     const { projectId } = req.query;
@@ -232,6 +283,7 @@ const changeItemStatus = async(req, res) => {
 module.exports = {
     createItem,
     updateItem,
+    addComment,
     getItem,
     moveItem,
     changeItemStatus

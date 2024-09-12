@@ -7,6 +7,12 @@ const attachmentSchema = mongoose.Schema({
     size: Number
 });
 
+const commentSchema = mongoose.Schema({
+    commentedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    content: { type: String, required: true },
+    commentedAt: { type: Date, default: Date.now }
+});
+
 const activityLogSchema = mongoose.Schema({
     changedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     change: String,
@@ -25,6 +31,7 @@ const itemSchema = mongoose.Schema({
     activityLog: [activityLogSchema],
     assignee: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     sprintId: { type: mongoose.Schema.Types.ObjectId, ref: "Sprint" },
+    comments: [commentSchema],
     start: Date,
     end: Date,
     startedOn: Date,
