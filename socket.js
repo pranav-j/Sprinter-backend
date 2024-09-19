@@ -3,6 +3,7 @@ const cookie = require('cookie');
 const jwt = require("jsonwebtoken");
 const User = require("./models/userModel");
 const Project = require("./models/projectModel")
+const Message = require("./models/messageModel");
 
 const initSocket = (server) => {
     const io = socketIo(server, {
@@ -46,8 +47,18 @@ const initSocket = (server) => {
         connectedUsers[socket.user._id] = socket.id;
         console.log("connectedUsers.........", connectedUsers);
 
-        socket.on('chatMessage', (message) => {
+        socket.on('chatMessage', async(message) => {
             console.log("message.......", message);
+
+            const newMessage = new Message({
+                messageContent: message.content,
+                senderId: socket.user._id,
+                receiverId: message.messageTo,
+                projectId: message.projectId,
+            });
+        
+            await newMessage.save();
+
             const recieverSocketId = connectedUsers[message.messageTo];
             if(message.messageTo) {                
                 console.log("PRIVATE MESSAGE....", message.messageTo, recieverSocketId);
@@ -60,7 +71,6 @@ const initSocket = (server) => {
                     });
                 }
             }
-            // io.emit('message', message);
         });
 
         socket.on('joinProject', async({projectId}) => {
@@ -68,10 +78,12 @@ const initSocket = (server) => {
                 const project = await Project.findById(projectId).populate('members');
                 console.log("PROJECT found.........", project);
                 const isMember = socket.user.projects.some(project => project.toString() === projectId);
+                const isCreator = socket.user._id.equals(project.createdBy);
                 console.log("isMember..........", socket.user.projects);
-                if(isMember) {
+                if(isMember || isCreator) {
                     console.log("Yes YOU are a MEMBER of this project");
                     socket.join(projectId);
+                    console.log(`${socket.user.firstName} joined project: ${projectId}`);
                 }
             } catch (error) {
                 console.log('Error joining project:', error);
@@ -79,11 +91,21 @@ const initSocket = (server) => {
             }
         });
 
-        socket.on('sentMessageToGroup', ({ projectId, content }) => {
+        socket.on('sentMessageToGroup', async({ projectId, content }) => {
             console.log("GROUP message RECIEVED...............",content);
+
+            const groupMessage = new Message({
+                messageContent: content,
+                senderId: socket.user._id,
+                projectGroupId: projectId,
+            });
+        
+            await groupMessage.save();
+
             socket.to(projectId).emit('receiveMessageFromGroup', {
                 messageContent: content,
                 senderId: socket.user._id,
+                projectGroupId: projectId,
                 sentAt: new Date(),
             })
         })

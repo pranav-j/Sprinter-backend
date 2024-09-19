@@ -319,8 +319,14 @@ const getMembers = async(req, res) => {
     try {
         const members = await User.find({ 
             projects: projectId,
-            // addedBy: req.user._id
         }).select('-password -createdAt -updatedAt');
+
+        if (req.user.addedBy) {
+            const addedByUser = await User.findById(req.user.addedBy).select('-password -createdAt -updatedAt');
+            if (addedByUser) {
+                members.push(addedByUser);
+            }
+        }
 
         res.status(200).json(members);
     } catch (error) {
