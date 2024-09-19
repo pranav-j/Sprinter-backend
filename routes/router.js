@@ -48,7 +48,6 @@ router.post("/api/sprint", adminAuth, createSprint);
 
 router.post("/api/addMembers", adminAuth, addMembers);
 
-
 router.post("/api/startSprint", adminAuth, startSprint);
 
 // common routes

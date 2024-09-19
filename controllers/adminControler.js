@@ -322,7 +322,6 @@ const getMembers = async(req, res) => {
             // addedBy: req.user._id
         }).select('-password -createdAt -updatedAt');
 
-        // console.log("Get MEMBERS..........", members);
         res.status(200).json(members);
     } catch (error) {
         console.log("Failed to find members...............", error.message);
