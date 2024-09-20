@@ -87,7 +87,7 @@ const initSocket = (server) => {
                 }
             } catch (error) {
                 console.log('Error joining project:', error);
-                socket.emit('error', { message: 'An error occurred', error });
+                socket.emit('error', { message: 'An error occurred', error }); //Handle this channel on frontend.
             }
         });
 
@@ -108,7 +108,26 @@ const initSocket = (server) => {
                 projectGroupId: projectId,
                 sentAt: new Date(),
             })
-        })
+        });
+
+        socket.on('loadOldMessages', async({ projectGroupId, senderId}) => {
+            try {
+                if(projectGroupId) {
+                    const oldMessages = await Message.find({ projectGroupId }).sort({ sentAt: 1 });
+                    socket.emit('loadOldMessages', oldMessages);
+                } else {
+                    const oldMessages = await Message.find({
+                        $or: [
+                            { senderId, receiverId: socket.user._id },
+                            { senderId: socket.user._id, receiverId: senderId }
+                        ]
+                    }).sort({ sentAt: 1 });
+                    socket.emit('loadOldMessages', oldMessages);
+                }
+            } catch (error) {
+                console.log('Error fetching messages:', error);
+            }
+        });
 
         socket.on('disconnect', () => {
             console.log('Client disconnected');
