@@ -19,6 +19,7 @@ const {
 const { 
     createItem, 
     updateItem, 
+    deleteItem,
     addComment, 
     getItem, 
     moveItem, 
@@ -55,6 +56,8 @@ router.post("/api/startSprint", adminAuth, startSprint);
 router.post("/api/item", commonAuth, uploadItemFiles.array('attachments', 5), createItem);
 
 router.put("/api/item/:id", commonAuth, updateItem);
+
+router.delete("/api/item/:id", commonAuth, deleteItem);
 
 router.post("/api/comment/:id", commonAuth, addComment)
 

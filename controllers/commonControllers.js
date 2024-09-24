@@ -188,6 +188,7 @@ const updateItem = async(req, res) => {
         );
 
         if (updatedItem) {
+            console.log(`${id} updated by ${req.user._id}...............`);
             return res.status(200).json(updatedItem);
         } else {
             return res.status(404).json({ message: "Item not found" });
@@ -195,6 +196,22 @@ const updateItem = async(req, res) => {
     } catch (error) {
         console.log("Failed to update item...............", error.message);
         return res.status(500).json({ message: "Failed to update item" });
+    }
+};
+
+const deleteItem = async(req,res) => {
+    try {
+        const item = await Item.findById(req.params.id);
+        if(item.createdBy === req.user._id || req.user.role === 'admin') {
+            await Item.findByIdAndDelete(req.params.id);
+            console.log(`${req.params.id} DELETED by ${req.user._id}...............`);
+            res.status(200).json({ message: 'Item deleted successfully', itemId: req.params.id });
+        } else {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+    } catch (error) {
+        console.log("Failed to delete item...............", error.message);
+        res.status(500).json({ message: 'Failed to delete item', error });
     }
 };
 
@@ -283,6 +300,7 @@ const changeItemStatus = async(req, res) => {
 module.exports = {
     createItem,
     updateItem,
+    deleteItem,
     addComment,
     getItem,
     moveItem,
