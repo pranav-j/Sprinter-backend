@@ -136,7 +136,7 @@ const login = async(req, res) => {
         const user = await User.findOne({ email });
 
         if(!user || !(await bcrypt.compare(password, user.password))) {
-            res.status(401).json({
+            return res.status(401).json({
                 status: 'failed',
                 message: 'You must verify your email before logging in.'
             })

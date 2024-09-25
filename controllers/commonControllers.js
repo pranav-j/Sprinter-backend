@@ -84,7 +84,6 @@ const moveItem = async(req, res) => {
         if(moveToSprintId === itemSprintId) {
             console.log("Re-order items in a Sprint");
 
-
             for(let i = insertAt; i <= item.order - 1; i++) {
                 moveToSprintItems[i].order = moveToSprintItems[i].order + 1;
                 await moveToSprintItems[i].save();
@@ -116,7 +115,17 @@ const moveItem = async(req, res) => {
             itemsInBacklog[i].order = i + 1;
             await itemsInBacklog[i].save();
         }
-        res.status(200).json({message: 'yoo boy'})
+
+        const updatedOrder = await Item.find(
+            { projectId },
+            { _id: 1, order: 1 }
+        )
+
+        res.status(200).json({
+            message: "Item moved succesfully",
+            updatedItem: item,
+            updatedOrder
+        })
     } catch (error) {
         console.log("Failed moving item...............", error.message);
         return res.status(500).json({ message: "Failed moving item" });

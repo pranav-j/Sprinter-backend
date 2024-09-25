@@ -31,7 +31,6 @@ const commonAuth = async(req, res, next) => {
         const user = await User.findById(decoded._id);
         if(user.role === 'admin' || user.role === 'normalUser') {
             req.user = user;
-            // console.log(`It\'s the ADMIN...............`, user._id);
             next();
         } else {
             console.log('Intruder trying to access COMMON routes...............');
