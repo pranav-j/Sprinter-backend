@@ -168,6 +168,14 @@ const createItem = async(req, res) => {
             }
         };
 
+        if(req.user.role === 'admin' && assignee) {
+            newItem.activityLog.push({
+                changedBy: req.user._id,
+                change: `"${title}" assigned to ${assignee}`,
+                changedAt: new Date(),
+            }, { new: true });
+        }
+
         const newItemCreated = await newItem.save();
         if(newItemCreated) console.log('New item created...............');
         res.status(200).json(newItemCreated);
@@ -182,19 +190,43 @@ const updateItem = async(req, res) => {
         const { id } = req.params;
         const { title, description, type, start, end, assignee } = req.body;
 
-        const updatedItem = await Item.findByIdAndUpdate(
+        // const updatedItem = await Item.findByIdAndUpdate(
+        //     id,
+        //     {
+        //         title,
+        //         description,
+        //         type,
+        //         start,
+        //         end,
+        //         assignee: assignee === '' ? null : (assignee || null),
+        //     },
+        //     { new: true }
+        // );
+
+        const updatedFields = {
+            title,
+            description,
+            type,
+            start,
+            end,
+            assignee: assignee === '' ? null : (assignee || null),
+        };
+
+        let updatedItem = await Item.findByIdAndUpdate(
             id,
-            {
-                title,
-                description,
-                type,
-                start,
-                end,
-                assignee: assignee === '' ? null : (assignee || null),
-                // Optionally handle attachments update logic
-            },
+            updatedFields,
             { new: true }
         );
+
+        // If only assignee is updated, log it in the activity log
+        if (assignee && !title && !description && !type && !start && !end) {
+            updatedItem.activityLog.push({
+                changedBy: req.user._id,
+                change: `"${updatedItem.title}" taken up by ${req.user.firstName} ${req.user.lastName}`,
+                changedAt: new Date(),
+            }, { new: true });
+            updatedItem = await updatedItem.save();
+        }
 
         if (updatedItem) {
             console.log(`${id} updated by ${req.user._id}...............`);

@@ -195,7 +195,6 @@ const logout = (req, res) => {
 
 // PROJECT --------------------------------------------------------------------------------------------------
 
-
 const createProject = async(req, res) => {
     const { title, description, startDate, endDate } = req.body;
     const user = req.user;
