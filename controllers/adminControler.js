@@ -163,7 +163,7 @@ const login = async(req, res) => {
                 expiresIn: '10h'
             }
         );
-
+        console.log(`${user.firstName} ${user.lastName} logged in...............`);
         res.cookie('tokenn', tokenn, { httpOnly: true });
 
         res.status(200).json({
@@ -188,6 +188,10 @@ const login = async(req, res) => {
     }
 };
 
+const logout = (req, res) => {
+    res.clearCookie('tokenn');
+    res.status(200).json({ message: 'Logged out successfully' });
+};
 
 // PROJECT --------------------------------------------------------------------------------------------------
 
@@ -307,6 +311,7 @@ const addMembers = async(req, res) => {
                 }
             });
         };
+        console.log("Members added succesfully...............");
         res.status(200).json({ message: "Members added succesfully"})
     } catch (error) {
         console.log("Failed to add members...............", error.message);
@@ -327,7 +332,7 @@ const getMembers = async(req, res) => {
                 members.push(addedByUser);
             }
         }
-
+        console.log("Members fetched succesfully...............");
         res.status(200).json(members);
     } catch (error) {
         console.log("Failed to find members...............", error.message);
@@ -349,7 +354,7 @@ const startSprint = async(req, res) => {
         if (!sprint) {
             return res.status(404).json({ message: "Sprint not found" });
         }
-
+        console.log("Sprint started succesfully...............", sprintId);
         res.status(200).json({ message: `Sprint ${sprintId} started`, sprint });
     } catch (error) {
         console.log("Failed to start sprint...............", error.message);
@@ -362,6 +367,7 @@ module.exports = {
     signUp,
     verifyOTP,
     login,
+    logout,
     createProject,
     getProjects,
     createSprint,

@@ -7,6 +7,7 @@ const {
     signUp, 
     verifyOTP, 
     login, 
+    logout,
     createProject, 
     getProjects, 
     createSprint, 
@@ -40,6 +41,8 @@ router.post("/api/inviteSignup", uploadSignup.single('profilePic'), inviteSignup
 router.post("/api/verifyOTP", verifyOTP);
 
 router.post("/api/login", login);
+
+router.post("/api/logout", logout);
 
 // admin only routes
 

@@ -115,7 +115,7 @@ const initSocket = (server) => {
                 if(projectGroupId) {
                     const oldMessages = await Message.find({ projectGroupId }).sort({ sentAt: 1 });
                     socket.emit('loadOldMessages', oldMessages);
-                } else {
+                } else if(!projectGroupId && senderId) {
                     const oldMessages = await Message.find({
                         $or: [
                             { senderId, receiverId: socket.user._id },
