@@ -353,6 +353,60 @@ const startSprint = async(req, res) => {
         if (!sprint) {
             return res.status(404).json({ message: "Sprint not found" });
         }
+
+        // const project = await Project.findById(sprint.projectId);
+        // const members = await User.find({projects: project._id});
+
+        // console.log("EMAILS.......", members);
+
+        const projectWithMembers = await Project.aggregate([
+            { $match: { _id: sprint.projectId } }, // Match the project by ID
+            {
+              $lookup: {
+                from: 'users', // The name of the User collection
+                localField: '_id', // Field from the Project collection
+                foreignField: 'projects', // Field from the User collection
+                as: 'members' // Name of the output array field
+              }
+            },
+            {
+              $project: {
+                members: {
+                  $map: {
+                    input: '$members',
+                    as: 'member',
+                    in: {
+                      email: '$$member.email',
+                      firstName: '$$member.firstName',
+                      lastName: '$$member.lastName'
+                    }
+                  }
+                }
+              }
+            }
+        ]);
+
+        const members = projectWithMembers[0]?.members || [];
+          
+        members.forEach(member => {
+            // console.log(`Email: ${member.email}, First Name: ${member.firstName}, Last Name: ${member.lastName}`);
+
+            const mailOptions = {
+                from: process.env.EMAIL_USERNAME,
+                to: member.email,
+                subject: 'SPRINT STARTED',
+                text: `Hello, ${member.firstName}, New SPRINT started by ${req.user.firstName} ${req.user.lastName}. 🧑‍💻`
+            };
+    
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log('Error sending email: ', error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
+        });
+
         console.log("Sprint started succesfully...............", sprintId);
         res.status(200).json({ message: `Sprint ${sprintId} started`, sprint });
     } catch (error) {

@@ -20,11 +20,11 @@ const projectSchema = mongoose.Schema({
     }],
     startDate: {
         type: Date,
-        required: true
+        // required: true
     },
     endDate: {
         type: Date,
-        required: true
+        // required: true
     }
 }, { timestamps: true });
 
