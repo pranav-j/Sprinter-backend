@@ -334,7 +334,7 @@ const changeItemStatus = async(req, res) => {
         res.status(200).json({ message: "Status changed" , updatedItem});
     } catch (error) {
         console.log("Failed to change status...............", error.message);
-        return res.status(500).json({ message: "Failed to change status" });
+        return res.status(500).json({ message: "Failed to change status", error });
     }
 };
 

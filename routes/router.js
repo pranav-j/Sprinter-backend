@@ -4,10 +4,6 @@ const router = express.Router();
 const { adminAuth, commonAuth } = require("../middleware/auth")
 
 const { 
-    signUp, 
-    verifyOTP, 
-    login, 
-    logout,
     createProject, 
     getProjects, 
     createSprint, 
@@ -27,7 +23,13 @@ const {
     changeItemStatus
 } = require("../controllers/commonControllers");
 
-const { inviteSignup } = require("../controllers/normalUserController");
+const { 
+    inviteSignup,
+    signUp,
+    verifyOTP,
+    login,
+    logout,
+} = require("../controllers/signupLoginController");
 
 const { uploadSignup, uploadItemFiles } = require("../services/s3Upload");
 
