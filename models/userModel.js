@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        // required: true
+        required: true
     },
     lastName: {
         type: String,
@@ -17,11 +17,14 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        // required: true
     },
     profilePic: {
         type: String,
         default: ''
+    },
+    googleOAuthSub: {
+        type: String
     },
     verified: {
         type: Boolean,

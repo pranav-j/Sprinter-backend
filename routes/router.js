@@ -29,6 +29,7 @@ const {
     verifyOTP,
     login,
     logout,
+    googleOAuth,
 } = require("../controllers/signupLoginController");
 
 const { uploadSignup, uploadItemFiles } = require("../services/s3Upload");
@@ -45,6 +46,8 @@ router.post("/api/verifyOTP", verifyOTP);
 router.post("/api/login", login);
 
 router.post("/api/logout", logout);
+
+router.post("/api/googleOAuth", googleOAuth);
 
 // admin only routes
 

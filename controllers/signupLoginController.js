@@ -140,12 +140,10 @@ const login = async(req, res) => {
         const tokenn = jwt.sign(
             { 
                 _id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName
             },
             process.env.JWT_SECRET,
             {
-                expiresIn: '10h'
+                expiresIn: '24h'
             }
         );
         console.log(`${user.firstName} ${user.lastName} logged in...............`);
@@ -178,10 +176,93 @@ const logout = (req, res) => {
     res.status(200).json({ message: 'Logged out successfully' });
 };
 
+// Google OAuth-----------------------------------------------------------------------------------
+
+const googleOAuth = async(req, res) => {
+    try {
+        const {credential, clientId} = req.body;
+        const {email, name, picture, sub} = jwt.decode(credential);
+        console.log("OAuth body", {email, name, picture, sub});
+        const user = await User.findOne({ email });
+
+        if(user && user.email && !user.googleOAuthSub) {
+            console.log("User exists and signed up without OAuth........");
+            return res.status(409).json({ message: 'Please sign in with email and password' });
+        } else if(user && user.email && user.googleOAuthSub) {
+            console.log("User signed up with OAuth........");
+            const tokenn = jwt.sign(
+                { _id: user._id },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+            console.log(`${user.firstName} ${user.lastName} logged in...............`);
+            res.cookie('tokenn', tokenn, { httpOnly: true });
+            return res.status(200).json({
+            tokenn,
+            user: {
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                profilePic: user.profilePic,
+                role: user.role
+            }
+            });
+        } else if(!user){
+            console.log("Sign up with OAuth........");
+
+            console.log("OAuth body", {email, name, picture, sub});
+            
+            const newUser = new User({ 
+                firstName: name,
+                email,
+                profilePic: picture,
+                googleOAuthSub: sub,
+            });
+            
+
+            const newUserCreated = await newUser.save();
+
+            console.log("New user created succesfully using OAuth...............");                
+
+            const tokenn = jwt.sign(
+                { 
+                    _id: newUserCreated._id,
+                },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: '24h'
+                }
+            );
+            console.log(`${newUserCreated.firstName} ${newUserCreated.lastName} logged in...............`);
+            res.cookie('tokenn', tokenn, { httpOnly: true });
+    
+            return res.status(200).json({
+                tokenn,
+                user: {
+                    _id: newUserCreated._id,
+                    firstName: newUserCreated.firstName,
+                    lastName: newUserCreated.lastName,
+                    profilePic: newUserCreated.profilePic,
+                    role: newUserCreated.role
+                }
+            });
+        }
+        
+        res.status(200).json({ message: 'OAuth verified successfully' });
+    } catch (error) {
+        console.log("OAuth failed...............", error.message);
+        res.status(500).json({ 
+            message: 'OAuth failed',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     inviteSignup,
     signUp,
     verifyOTP,
     login,
     logout,
+    googleOAuth
 };
