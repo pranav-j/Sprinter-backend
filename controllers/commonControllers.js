@@ -258,26 +258,23 @@ const deleteItem = async(req,res) => {
 
 const addComment = async(req, res) => {
     try {
-        console.log("Comment body..........", req.body);
+        const { comment, itemId } = req.body;
 
-        const { id } = req.params;
-        const { comment } = req.body;
-        const userId = req.user._id; // Assuming user is authenticated
-
-        const item = await Item.findById(id);
+        const item = await Item.findById(itemId);
 
         if (!item) {
             return res.status(404).json({ message: "Item not found" });
         }
 
-        // Add the new comment
         item.comments.push({
-            commentedBy: userId,
+            commentedBy: req.user._id,
             content: comment,
             commentedAt: new Date(),
         });
 
         await item.save();
+        console.log("Comment made successfully...............");
+        
         return res.status(200).json(item);
 
     } catch (error) {

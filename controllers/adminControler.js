@@ -107,7 +107,7 @@ const addMembers = async(req, res) => {
             const existingUser = await User.findOne({ email });
 
             if(existingUser) {
-                console.log(`User alfeady exist for ${email}...............`);
+                console.log(`User already exist for ${email}...............`);
                 continue;
             }
 
@@ -240,7 +240,6 @@ const startSprint = async(req, res) => {
 
 module.exports = {
     home,
-
     createProject,
     getProjects,
     createSprint,

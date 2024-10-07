@@ -76,7 +76,7 @@ const initSocket = (server) => {
         socket.on('joinProject', async({projectId}) => {
             try {
                 const project = await Project.findById(projectId).populate('members');
-                console.log("PROJECT found.........", project);
+                console.log("PROJECT found.........");
                 const isMember = socket.user.projects.some(project => project.toString() === projectId);
                 const isCreator = socket.user._id.equals(project.createdBy);
                 console.log("isMember..........", socket.user.projects);
