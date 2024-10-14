@@ -1,12 +1,13 @@
 const Item = require("../models/itemModel");
-const { uploadFileToS3 } = require("../services/s3Upload")
+const { findItemById } = require("../services/itemService");
+const { uploadFileToS3 } = require("../services/s3Upload");
 
 const moveItem = async(req, res) => {
     console.log('TEST.........', req.body);
     const { insertAt, itemId, itemSprintId, moveToSprintId, moveItemToBacklog, projectId } = req.body;
 
     try {
-        const item = await Item.findById(itemId);
+        const item = await findItemById(itemId);
         const moveToSprintItems = await Item.find({ projectId: projectId, sprintId: moveToSprintId}).sort('order');
         const itemsInBacklog = await Item.find({ projectId: projectId, sprintId: null }).sort('order');
 
@@ -141,6 +142,7 @@ const createItem = async(req, res) => {
         const itemCount = await Item.countDocuments({ projectId, sprintId: null });
         console.log("itemCount.........", itemCount);
         console.log("ITEM.........", req.body);
+
         const newItem = new Item({
             createdBy: user._id,
             projectId,
@@ -242,7 +244,7 @@ const updateItem = async(req, res) => {
 
 const deleteItem = async(req,res) => {
     try {
-        const item = await Item.findById(req.params.id);
+        const item = await findItemById(req.params.id);
         if(item.createdBy === req.user._id || req.user.role === 'admin') {
             await Item.findByIdAndDelete(req.params.id);
             console.log(`${req.params.id} DELETED by ${req.user._id}...............`);
@@ -260,7 +262,8 @@ const addComment = async(req, res) => {
     try {
         const { comment, itemId } = req.body;
 
-        const item = await Item.findById(itemId);
+        const item = await findItemById(itemId);
+
 
         if (!item) {
             return res.status(404).json({ message: "Item not found" });

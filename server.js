@@ -1,3 +1,4 @@
+require("dotenv").config();
 require("./config/bdConfig");
 
 const express = require('express');
@@ -6,9 +7,9 @@ const http = require('http');
 const cors = require('cors');
 const routes = require("./routes/router");
 const initSocket = require('./socket')
-const dotenv = require('dotenv');
+// const dotenv = require('dotenv');
 
-dotenv.config();
+// dotenv.config();
 
 const app = express();
 

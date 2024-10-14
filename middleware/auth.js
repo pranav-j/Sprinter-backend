@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const { findUserById } = require("../services/userService");
 
 const adminAuth = async(req, res, next) => {
     const tokenn = req.cookies.tokenn;
@@ -7,7 +8,8 @@ const adminAuth = async(req, res, next) => {
 
     try {
         const decoded = jwt.verify(tokenn, process.env.JWT_SECRET);
-        const user = await User.findById(decoded._id);
+        // const user = await User.findById(decoded._id);
+        const user = await findUserById(decoded._id);
         if(user.role === 'admin') {
             req.user = user;
             // console.log(`It\'s the ADMIN...............`, user._id);
@@ -28,7 +30,7 @@ const commonAuth = async(req, res, next) => {
 
     try {
         const decoded = jwt.verify(tokenn, process.env.JWT_SECRET);
-        const user = await User.findById(decoded._id);
+        const user = await findUserById(decoded._id);
         if(user.role === 'admin' || user.role === 'normalUser') {
             req.user = user;
             next();

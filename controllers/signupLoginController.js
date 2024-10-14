@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
-const { uploadFileToS3 }  = require("../services/s3Upload")
+const { uploadFileToS3 }  = require("../services/s3Upload");
+const { findUserByEmail } = require("../services/userService");
 
 const jwt = require("jsonwebtoken");
 
@@ -9,7 +10,7 @@ const jwt = require("jsonwebtoken");
 const inviteSignup = async(req, res) => {
     const { firstName, lastName, email, tempPassword, newPassword } =req.body;
     try {
-        const user = await User.findOne({ email });
+        const user = await findUserByEmail(email);
 
         if(!user) {
             res.status(404).json({ message: 'User not found' });
@@ -50,7 +51,7 @@ const signUp = async(req, res) => {
     try {
         console.log(req.body);
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await findUserByEmail(email);
         if (existingUser) return res.status(400).json({ error: 'Email already in use' });
 
         let profilePicUrl = '';
@@ -92,7 +93,7 @@ const verifyOTP = async(req, res) => {
     try {
         const { email, otp } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await findUserByEmail(email);
 
         console.log("USER FOUND FOR VERIFICATION........", user);
         if( !user || user.otp != otp) return res.status(400).send('Invalid OTP.');
@@ -118,7 +119,7 @@ const verifyOTP = async(req, res) => {
 const login = async(req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        const user = await findUserByEmail(email);
 
         if(!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({
@@ -183,7 +184,7 @@ const googleOAuth = async(req, res) => {
         const {credential, clientId} = req.body;
         const {email, name, picture, sub} = jwt.decode(credential);
         console.log("OAuth body", {email, name, picture, sub});
-        const user = await User.findOne({ email });
+        const user = await findUserByEmail(email);
 
         if(user && user.email && !user.googleOAuthSub) {
             console.log("User exists and signed up without OAuth........");
