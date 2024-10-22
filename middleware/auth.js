@@ -4,8 +4,10 @@ const { findUserById } = require("../services/userService");
 
 const adminAuth = async(req, res, next) => {
     const tokenn = req.cookies.tokenn;
-    if(!tokenn) return res.status(401).json({ error: 'Unauthorized...' });
-
+    if(!tokenn) {
+        console.log("No tokenn.... auth failed");        
+        return res.status(401).json({ error: 'Unauthorized...' });
+    }
     try {
         const decoded = jwt.verify(tokenn, process.env.JWT_SECRET);
         // const user = await User.findById(decoded._id);
@@ -19,15 +21,18 @@ const adminAuth = async(req, res, next) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
     } catch (error) {
-        res.status(401).json({ error: 'Unauthorized' });
+        console.log("No tokenn.... auth failed", error);
+        res.status(401).json({ error: 'Unauthorized', error });
     }
 };
 
 
 const commonAuth = async(req, res, next) => {
     const tokenn = req.cookies.tokenn;
-    if(!tokenn) return res.status(401).json({ error: 'Unauthorized...' });
-
+    if(!tokenn) {
+        console.log("No tokenn.... auth failed");
+        return res.status(401).json({ error: 'Unauthorized...' });
+    }
     try {
         const decoded = jwt.verify(tokenn, process.env.JWT_SECRET);
         const user = await findUserById(decoded._id);
@@ -39,7 +44,8 @@ const commonAuth = async(req, res, next) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
     } catch (error) {
-        res.status(401).json({ error: 'Unauthorized' });
+        console.log("No tokenn.... auth failed", error);
+        res.status(401).json({ error: 'Unauthorized', error });
     }
 };
 

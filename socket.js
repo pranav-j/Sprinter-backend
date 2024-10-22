@@ -8,7 +8,7 @@ const Message = require("./models/messageModel");
 const initSocket = (server) => {
     const io = socketIo(server, {
         cors: {
-            origin: 'http://localhost:3000',
+            origin: process.env.FRONTEND_URL,
             credentials: true,
         }
     });

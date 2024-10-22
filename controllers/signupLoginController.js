@@ -148,7 +148,23 @@ const login = async(req, res) => {
             }
         );
         console.log(`${user.firstName} ${user.lastName} logged in...............`);
-        res.cookie('tokenn', tokenn, { httpOnly: true });
+        // res.cookie('tokenn', tokenn, { httpOnly: true });
+
+
+        // res.cookie('tokenn', tokenn, {
+        //     httpOnly: true,  // Prevents client-side access to the cookie
+        //     secure: false,   // Set to false for non-HTTPS environments
+        //     sameSite: 'None', // Allows cross-site cookie usage
+        //     domain: 'ec2-65-2-63-42.ap-south-1.compute.amazonaws.com' // Set the cookie domain
+        // });
+
+        res.cookie('tokenn', tokenn, {
+            httpOnly: true,   // Prevents client-side access to the cookie
+            secure: false,    // Set to true once you're using HTTPS
+            sameSite: 'Lax',  // Allows cross-site requests from the same domain (default value if you don't specify)
+            path: '/',        // Ensures the cookie is accessible for all routes
+        });
+        
 
         res.status(200).json({
             status: 'success',
