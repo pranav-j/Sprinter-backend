@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { adminAuth, commonAuth } = require("../middleware/auth")
+const { adminAuth, commonAuth } = require("../middleware/auth");
+
+const { createOrder, verifyPayment } = require("../controllers/paymentController");
 
 const { 
     createProject, 
@@ -64,6 +66,16 @@ router.post("/api/login", loginValidator, login);
 router.post("/api/logout", logout);
 
 router.post("/api/googleOAuth", googleOAuth);
+
+// payment routes
+
+// router.post("/api/create-order", createOrder);
+
+// router.post("/api/verify-payment", verifyPayment);
+
+router.post("/api/create-order", commonAuth, createOrder);
+
+router.post("/api/verify-payment", commonAuth, verifyPayment);
 
 // admin only routes
 

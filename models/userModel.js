@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const subscriptionSchema = mongoose.Schema({
+    subscribedOn: Date,
+    razorpay_order_id: String,
+    razorpay_payment_id: String
+})
+
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -49,7 +55,8 @@ const userSchema = new mongoose.Schema({
     projects: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Project"
-    }]
+    }],
+    subscription: subscriptionSchema
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
