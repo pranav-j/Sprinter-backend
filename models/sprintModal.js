@@ -22,6 +22,7 @@ const sprintSchema = new mongoose.Schema({
     description: String,
     deletedAt: Date,
     startedOn: Date,
+    endedOn: Date,
 }, { timestamps: true });
 
 const Sprint = mongoose.model('Sprint', sprintSchema);

@@ -9,6 +9,7 @@ const {
     createProject, 
     getProjects, 
     createSprint, 
+    endSprint,
     getSprints, 
     addMembers, 
     getMembers, 
@@ -86,6 +87,8 @@ router.post("/api/sprint", adminAuth, createSprintValidator, createSprint);
 router.post("/api/addMembers", adminAuth, addMembersValidator, addMembers);
 
 router.post("/api/startSprint", adminAuth, startSprintValidator, startSprint);
+
+router.post("/api/endSprint", adminAuth, endSprint);
 
 // common routes
 

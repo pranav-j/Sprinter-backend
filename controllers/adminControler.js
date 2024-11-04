@@ -86,6 +86,28 @@ const createSprint = async(req, res) => {
     }
 };
 
+const endSprint = async(req, res) => {
+    const { sprintId } = req.body;
+    try {
+        console.log("Let's start this SPRINT ", sprintId);
+        
+        const sprint = await Sprint.findByIdAndUpdate(
+            sprintId,
+            { endedOn: new Date() },
+            { new: true }
+        );
+
+        if (!sprint) {
+            return res.status(404).json({ message: "Sprint not found" });
+        }
+        console.log("Sprint ended succesfully...............", sprintId);
+        res.status(200).json({ message: `Sprint ${sprintId} ended`, sprint });
+    } catch (error) {
+        console.log("Error updating sprint to \"Finished\"...............", error.message);
+        return res.status(500).json({ message: "Failed to create sprint" });
+    }
+};
+
 const getSprints = async(req, res) => {
     const { projectId } = req.query;
     try {
@@ -243,6 +265,7 @@ module.exports = {
     createProject,
     getProjects,
     createSprint,
+    endSprint,
     getSprints,
     addMembers,
     getMembers,

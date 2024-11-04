@@ -8,9 +8,7 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-let orderStore = {};
 
-// Route to create an order
 const createOrder = async (req, res) => {
     try {
         const { amount, receipt } = req.body;
@@ -31,15 +29,6 @@ const createOrder = async (req, res) => {
                 razorpay_payment_id: null  // Payment ID is null initially
             }
         });
-
-
-        // Save the order to in-memory storage
-        // orderStore[order.id] = {
-        //     amount: order.amount,
-        //     currency: order.currency,
-        //     receipt: order.receipt,
-        //     status: 'created'
-        // };
 
         return res.status(200).json(order);
     } catch (error) {
@@ -74,19 +63,6 @@ const verifyPayment = async (req, res) => {
                 console.error("Order not found for verification.");
                 return res.status(404).json({ status: 'not_found', message: 'Order not found' });
             }
-
-            // ---------------------------------------------------------------------------------
-            // if (orderStore[razorpay_order_id]) {
-            //     // Update the in-memory order status to 'paid'
-            //     orderStore[razorpay_order_id].status = 'paid';
-            //     orderStore[razorpay_order_id].payment_id = razorpay_payment_id;
-
-            //     console.log("Payment verification successful for order:", razorpay_order_id);
-            //     res.status(200).json({ status: 'ok' });
-            // } else {
-            //     console.error("Order not found in memory for verification.");
-            //     res.status(404).json({ status: 'not_found', message: 'Order not found' });
-            // }
         } else {
             console.error("Payment verification failed: Signature mismatch");
             return res.status(400).json({ status: 'verification_failed', message: 'Signature mismatch' });
