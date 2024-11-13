@@ -6,7 +6,9 @@ const imgUploads = multer();
 const crypto = require("crypto");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
-const { transporter } = require("../services/mailer")
+const { transporter } = require("../services/mailer");
+const mongoose = require("mongoose");
+const Item = require("../models/itemModel");
 
 const { uploadFileToS3 } = require("../services/s3Upload")
 
@@ -260,6 +262,124 @@ const startSprint = async(req, res) => {
     }
 };
 
+
+// FOR REFERENCE --- no lookup
+// const getReportStats = async (req, res) => {
+//     try {
+//         console.log("getReportStats......");
+
+//         const { projectId } = req.query;
+
+//         const result = await Item.aggregate([
+//             // Stage 1: Filter items that have a sprintId
+//             {
+//                 $match: { 
+//                     projectId: new mongoose.Types.ObjectId(projectId),
+//                     sprintId: { $exists: true, $ne: null },
+//                 }
+//             },
+//             // Stage 2: Group by sprintId and calculate counts
+//             {
+//                 $group: {
+//                     _id: "$sprintId", // Group by sprintId
+//                     totalItems: { $sum: 1 }, // Count total items in each sprint
+//                     todoCount: {
+//                         $sum: {
+//                             $cond: [{ $eq: ["$status", "todo"] }, 1, 0]
+//                         }
+//                     },
+//                     onGoingCount: {
+//                         $sum: {
+//                             $cond: [{ $eq: ["$status", "onGoing"] }, 1, 0]
+//                         }
+//                     },
+//                     doneCount: {
+//                         $sum: {
+//                             $cond: [{ $eq: ["$status", "done"] }, 1, 0]
+//                         }
+//                     }
+//                 }
+//             }
+//         ]);
+
+//         console.log(result);
+
+//         res.status(200).json(result);
+//     } catch (error) {
+//         console.error("Error while grouping items by sprint: ", error);
+//     }
+// };
+
+const getReportStats = async (req, res) => {
+    try {
+        console.log("getReportStats......");
+
+        const { projectId } = req.query;
+
+        const result = await Item.aggregate([
+            // Stage 1: Filter items by projectId and those with a sprintId
+            {
+                $match: {
+                    projectId: new mongoose.Types.ObjectId(projectId),
+                    sprintId: { $exists: true, $ne: null }
+                }
+            },
+            // Stage 2: Lookup the Sprint collection to include the startedOn field
+            {
+                $lookup: {
+                    from: "sprints",  // Name of the collection (make sure it's correct)
+                    localField: "sprintId", // Field in the Item collection that refers to Sprint
+                    foreignField: "_id", // Field in the Sprint collection
+                    as: "sprintDetails"  // Alias for the joined data
+                }
+            },
+            // Stage 3: Unwind the "sprintDetails" array to work with individual sprint documents
+            {
+                $unwind: {
+                    path: "$sprintDetails",
+                    preserveNullAndEmptyArrays: false // Only keep items with a matching sprint
+                }
+            },
+            // Stage 4: Filter only sprints that have a "startedOn" field
+            {
+                $match: {
+                    "sprintDetails.startedOn": { $exists: true, $ne: null }
+                }
+            },
+            // Stage 5: Group by sprintId and calculate counts
+            {
+                $group: {
+                    _id: "$sprintId", // Group by sprintId
+                    totalItems: { $sum: 1 }, // Count total items in each sprint
+                    todoCount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$status", "todo"] }, 1, 0]
+                        }
+                    },
+                    onGoingCount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$status", "onGoing"] }, 1, 0]
+                        }
+                    },
+                    doneCount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$status", "done"] }, 1, 0]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        console.log(result);
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error while grouping items by sprint: ", error);
+        res.status(500).json({ message: "Failed to fetch report stats" });
+    }
+};
+
+
 module.exports = {
     home,
     createProject,
@@ -269,5 +389,6 @@ module.exports = {
     getSprints,
     addMembers,
     getMembers,
-    startSprint
+    startSprint,
+    getReportStats
 };

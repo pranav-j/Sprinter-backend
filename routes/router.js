@@ -13,7 +13,8 @@ const {
     getSprints, 
     addMembers, 
     getMembers, 
-    startSprint 
+    startSprint,
+    getReportStats
 } = require("../controllers/adminControler");
 
 const { 
@@ -23,7 +24,8 @@ const {
     addComment, 
     getItem, 
     moveItem, 
-    changeItemStatus
+    changeItemStatus,
+    searchItems
 } = require("../controllers/commonControllers");
 
 const { 
@@ -70,10 +72,6 @@ router.post("/api/googleOAuth", googleOAuth);
 
 // payment routes
 
-// router.post("/api/create-order", createOrder);
-
-// router.post("/api/verify-payment", verifyPayment);
-
 router.post("/api/create-order", commonAuth, createOrder);
 
 router.post("/api/verify-payment", commonAuth, verifyPayment);
@@ -89,6 +87,8 @@ router.post("/api/addMembers", adminAuth, addMembersValidator, addMembers);
 router.post("/api/startSprint", adminAuth, startSprintValidator, startSprint);
 
 router.post("/api/endSprint", adminAuth, endSprint);
+
+router.get("/api/getReportStats", getReportStats)
 
 // common routes
 
@@ -111,5 +111,7 @@ router.post("/api/moveItem", commonAuth, moveItemValidator, moveItem);
 router.get("/api/getMembers", commonAuth, getMembers);
 
 router.post("/api/changeItemStatus", commonAuth, changeItemStatusValidator, changeItemStatus);
+
+router.get("/api/searchItem", commonAuth, searchItems);
 
 module.exports = router;

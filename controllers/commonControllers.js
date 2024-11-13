@@ -286,15 +286,119 @@ const addComment = async(req, res) => {
     }
 };
 
-const getItem = async(req, res) => {
-    const { projectId } = req.query;
+// const getItem = async(req, res) => {
+//     const { projectId } = req.query;
+//     try {
+//         const items = await Item.find({projectId});
+//         console.log(`Items fetched for project ${projectId}...............`);
+//         return res.status(200).json({ items });
+//     } catch (error) {
+//         console.log("Failed to fetch items...............", error.message);
+//         return res.status(500).json({ message: "Failed to fetch items" });
+//     }
+// };
+
+// ------------------------------
+
+// const getItem = async (req, res) => {
+//     const { projectId, offset = 0 } = req.query;
+//     const limit = 5;
+//     console.log("GET ITEMS controller triggered***********");
+    
+//     try {
+//         const parsedOffset = parseInt(offset, 10);
+
+//         const items = await Item.find({
+//             projectId,
+//             sprintId: { $exists: false }
+//         })
+//         .skip(parseInt(parsedOffset))
+//         .limit(parseInt(limit));
+
+//         const totalItems = await Item.countDocuments({
+//             projectId,
+//             sprintId: { $exists: false }
+//         });
+
+//         const hasMore = items.length === limit && parsedOffset + items.length <= totalItems;
+
+//         console.log("###################################################");      
+//         // console.log(`Fetched ${items.length} items for project ${projectId} starting from offset ${offset}`);
+//         console.log("HAS MORE==========", hasMore);
+//         console.log("offset + items.length ===========", parsedOffset + items.length);
+//         console.log("items.length === limit......", items.length === limit);
+//         console.log("parsedOffset + items.length <= totalItems......", parsedOffset + items.length <= totalItems);
+//         console.log({totalItems, offset, parsedOffset});
+//         console.log("items.length.........", items.length);
+//         // console.log(items);
+//         console.log("###################################################");
+        
+//         return res.status(200).json({
+//             items,
+//             hasMore: true
+//         });
+//     } catch (error) {
+//         console.log("Failed to fetch items...............", error.message);
+//         return res.status(500).json({ message: "Failed to fetch items" });
+//     }
+// };
+
+
+const getItem = async (req, res) => {
+    const { projectId, sprintId, offset = 0 } = req.query;
+    const limit = 5;
+    console.log("GET ITEMS controller triggered***********");
+
     try {
-        const items = await Item.find({projectId});
-        console.log(`Items fetched for project ${projectId}...............`);
+        const parsedOffset = parseInt(offset, 10);
+        let items;
+
+        const query = {
+            projectId,
+            ...(sprintId ? { sprintId } : { sprintId: { $exists: false } })
+        };
+
+        if(sprintId) {
+            items = await Item.find(query);
+            console.log("Fetched ITEMS in a sprint....................");
+        } else {
+            items = await Item.find(query)
+            .skip(parsedOffset)
+            .limit(limit);
+
+            console.log("Fetched backlog ITEMS....................");            
+        }
+
+        // items = await Item.find({
+        //     projectId,
+        //     sprintId: { $exists: false }
+        // })
+        // .skip(parsedOffset)
+        // .limit(limit);
+
+        console.log(`Fetched ${items.length} items for project ${projectId}, offset ${parsedOffset}`);
+
         return res.status(200).json({ items });
     } catch (error) {
         console.log("Failed to fetch items...............", error.message);
         return res.status(500).json({ message: "Failed to fetch items" });
+    }
+};
+
+const searchItems = async(req, res) => {
+    try {
+        const { searchTerm } = req.query;
+
+        const matchedItems = await Item.find({
+            $or: [
+              { title: { $regex: searchTerm, $options: 'i' } },
+              { description: { $regex: searchTerm, $options: 'i' } },
+            ],
+        });
+        return res.status(200).json(matchedItems);
+    } catch (error) {
+        console.log("Failed SEARCH...............", error.message);
+        return res.status(500).json({ message: "Failed to search" });
     }
 };
 
@@ -345,5 +449,6 @@ module.exports = {
     addComment,
     getItem,
     moveItem,
-    changeItemStatus
+    changeItemStatus,
+    searchItems
 };

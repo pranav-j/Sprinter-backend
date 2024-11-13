@@ -10,7 +10,7 @@ const subscriptionSchema = mongoose.Schema({
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: true
+        // required: true
     },
     lastName: {
         type: String,

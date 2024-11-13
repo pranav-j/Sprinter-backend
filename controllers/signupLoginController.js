@@ -121,6 +121,8 @@ const login = async(req, res) => {
         const { email, password } = req.body;
         const user = await findUserByEmail(email);
 
+        console.log("USER........", user);
+
         if(!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({
                 status: 'failed',
@@ -174,7 +176,9 @@ const login = async(req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 profilePic: user.profilePic,
-                role: user.role
+                role: user.role,
+                createdAt: user.createdAt,
+                subscribed: user.subscription ? true : false
             }
         });
 
