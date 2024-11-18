@@ -3,7 +3,7 @@ const { findItemById } = require("../services/itemService");
 const { uploadFileToS3 } = require("../services/s3Upload");
 
 const moveItem = async(req, res) => {
-    console.log('TEST.........', req.body);
+    console.log('moveItem.........', req.body);
     const { insertAt, itemId, itemSprintId, moveToSprintId, moveItemToBacklog, projectId } = req.body;
 
     try {

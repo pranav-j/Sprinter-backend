@@ -147,7 +147,7 @@ const addMembers = async(req, res) => {
 
             console.log(`Invite sent to ' ${email} ' with PASS ${randomPassword}...............`);
 
-            const inviteLink = "http://localhost:3000/inviteSignup";
+            const inviteLink = `${process.env.FRONTEND_URL}/inviteSignup`;
 
             const mailOptions = {
                 from: process.env.EMAIL_USERNAME,
